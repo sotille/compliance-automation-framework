@@ -230,39 +230,303 @@ FedRAMP authorization is not a point-in-time certification — it requires Conti
 
 **Automating the POA&M:**
 
+The POA&M generator below fetches open findings from Dependency-Track, calculates FedRAMP SLA deadlines by severity, creates or updates corresponding tickets in Jira, and exports the full POA&M as a CSV for submission to the authorizing official.
+
 ```python
-# Generate FedRAMP POA&M from Dependency-Track findings
+#!/usr/bin/env python3
+# conmon-poam-generator.py
+# Generates FedRAMP POA&M from Dependency-Track and syncs to Jira
+# Required env vars: DT_API_KEY, DT_API_URL, DT_PROJECT_UUID,
+#                    JIRA_URL, JIRA_TOKEN, JIRA_PROJECT_KEY, JIRA_REPORTER_ID
+
+import csv
+import json
+import os
+import sys
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
-DT_API_URL = "https://dependency-track.internal/api/v1"
+DT_API_URL = os.environ["DT_API_URL"]
 DT_API_KEY = os.environ["DT_API_KEY"]
+PROJECT_UUID = os.environ["DT_PROJECT_UUID"]
+JIRA_URL = os.environ["JIRA_URL"]
+JIRA_TOKEN = os.environ["JIRA_TOKEN"]
+JIRA_PROJECT_KEY = os.environ["JIRA_PROJECT_KEY"]
+JIRA_REPORTER_ID = os.environ["JIRA_REPORTER_ID"]
+OUTPUT_CSV = "poam-report.csv"
 
-def generate_poam():
+FEDRAMP_SLA_DAYS = {
+    "CRITICAL": 30,
+    "HIGH": 90,
+    "MEDIUM": 180,
+    "LOW": 365,
+}
+
+def get_open_findings():
+    """Fetch all non-suppressed findings from Dependency-Track."""
     response = requests.get(
         f"{DT_API_URL}/finding/project/{PROJECT_UUID}",
         headers={"X-Api-Key": DT_API_KEY},
-        params={"suppressed": False}
+        params={"suppressed": False},
+        timeout=30,
     )
-    findings = response.json()
+    response.raise_for_status()
+    return response.json()
 
+def parse_identified_date(finding):
+    """Extract the earliest known date the vulnerability was attributed."""
+    # Prefer attribution date; fall back to today (conservative: never back-dates SLA)
+    try:
+        return datetime.fromisoformat(
+            finding.get("attribution", {}).get("attributedOn", "")
+        ).date()
+    except (ValueError, TypeError):
+        return date.today()
+
+def get_or_create_jira_ticket(cve_id, component, severity, scheduled_completion):
+    """Create a Jira ticket for the POA&M item if one does not already exist."""
+    jira_headers = {
+        "Authorization": f"Bearer {JIRA_TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    # Search for existing open ticket for this CVE + component combination
+    jql = (
+        f'project = "{JIRA_PROJECT_KEY}" '
+        f'AND summary ~ "{cve_id}" '
+        f'AND summary ~ "{component}" '
+        f'AND statusCategory != Done'
+    )
+    search_response = requests.get(
+        f"{JIRA_URL}/rest/api/3/search",
+        headers=jira_headers,
+        params={"jql": jql, "maxResults": 1},
+        timeout=15,
+    )
+    search_response.raise_for_status()
+    issues = search_response.json().get("issues", [])
+
+    if issues:
+        ticket_key = issues[0]["key"]
+        ticket_status = issues[0]["fields"]["status"]["name"]
+        return ticket_key, "existing", ticket_status
+
+    # Create new ticket
+    create_payload = {
+        "fields": {
+            "project": {"key": JIRA_PROJECT_KEY},
+            "summary": f"[FedRAMP POA&M] {cve_id} in {component}",
+            "description": {
+                "type": "doc",
+                "version": 1,
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": (
+                                    f"FedRAMP POA&M remediation required.\n"
+                                    f"CVE: {cve_id}\n"
+                                    f"Severity: {severity}\n"
+                                    f"Scheduled completion: {scheduled_completion}\n"
+                                    f"SLA basis: FedRAMP Moderate vulnerability management SLA."
+                                ),
+                            }
+                        ],
+                    }
+                ],
+            },
+            "issuetype": {"name": "Security Vulnerability"},
+            "priority": {"name": "Critical" if severity == "CRITICAL" else "High"},
+            "reporter": {"id": JIRA_REPORTER_ID},
+            "duedate": str(scheduled_completion),
+            "labels": ["fedramp", "poam", "conmon"],
+        }
+    }
+    create_response = requests.post(
+        f"{JIRA_URL}/rest/api/3/issue",
+        headers=jira_headers,
+        json=create_payload,
+        timeout=15,
+    )
+    create_response.raise_for_status()
+    ticket_key = create_response.json()["key"]
+    return ticket_key, "created", "Open"
+
+def check_jira_closure(ticket_key):
+    """Return True if the Jira ticket is closed (Done status category)."""
+    jira_headers = {"Authorization": f"Bearer {JIRA_TOKEN}", "Accept": "application/json"}
+    response = requests.get(
+        f"{JIRA_URL}/rest/api/3/issue/{ticket_key}",
+        headers=jira_headers,
+        params={"fields": "status"},
+        timeout=10,
+    )
+    if response.status_code != 200:
+        return False
+    category = response.json()["fields"]["status"]["statusCategory"]["key"]
+    return category == "done"
+
+def generate_poam():
+    findings = get_open_findings()
     poam_entries = []
+    sla_breaches = []
+    today = date.today()
+
     for f in findings:
-        severity = f["vulnerability"]["severity"]
-        sla_days = {"CRITICAL": 30, "HIGH": 90, "MEDIUM": 180}.get(severity, 365)
-        identified_date = datetime.fromisoformat(f["attribution"]["referenceUrl"])
+        severity = f["vulnerability"]["severity"].upper()
+        cve_id = f["vulnerability"].get("vulnId", "UNKNOWN")
+        component = f"{f['component']['name']}@{f['component'].get('version', 'unknown')}"
+        identified_date = parse_identified_date(f)
+        sla_days = FEDRAMP_SLA_DAYS.get(severity, 365)
+        scheduled_completion = identified_date + timedelta(days=sla_days)
+        days_overdue = (today - scheduled_completion).days
+
+        # Sync to Jira
+        ticket_key, ticket_action, ticket_status = get_or_create_jira_ticket(
+            cve_id, component, severity, scheduled_completion
+        )
+
+        # Check if Jira ticket is closed (indicates remediation complete)
+        if check_jira_closure(ticket_key):
+            poam_status = "Completed"
+        elif days_overdue > 0:
+            poam_status = "Delayed"
+            sla_breaches.append((cve_id, component, severity, days_overdue, ticket_key))
+        else:
+            poam_status = "Ongoing"
 
         poam_entries.append({
-            "weakness": f["vulnerability"]["vulnId"],
-            "severity": severity,
-            "asset": f["component"]["name"],
-            "date_identified": identified_date.strftime("%Y-%m-%d"),
-            "scheduled_completion": (identified_date + timedelta(days=sla_days)).strftime("%Y-%m-%d"),
-            "milestones": f"Remediate {f['component']['name']} {f['component']['version']}",
-            "status": "Ongoing"
+            "POA&M ID": f"POAM-{len(poam_entries) + 1:04d}",
+            "Weakness/CVE": cve_id,
+            "Weakness Description": f["vulnerability"].get("title", ""),
+            "Severity": severity,
+            "Affected Asset": component,
+            "Date Identified": str(identified_date),
+            "Scheduled Completion": str(scheduled_completion),
+            "Milestones": f"Upgrade {f['component']['name']} to patched version; verify via re-scan",
+            "Status": poam_status,
+            "Jira Ticket": ticket_key,
         })
 
-    return poam_entries
+    # Export CSV for submission
+    with open(OUTPUT_CSV, "w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=poam_entries[0].keys())
+        writer.writeheader()
+        writer.writerows(poam_entries)
+
+    print(f"POA&M generated: {len(poam_entries)} entries written to {OUTPUT_CSV}")
+
+    # Alert on SLA breaches
+    if sla_breaches:
+        print(f"\nALERT: {len(sla_breaches)} FedRAMP SLA breaches detected:")
+        for cve, comp, sev, days, ticket in sla_breaches:
+            print(f"  {cve} | {comp} | {sev} | {days} days overdue | Jira: {ticket}")
+        sys.exit(1)  # Fail CI to force escalation
+
+if __name__ == "__main__":
+    generate_poam()
+```
+
+**ConMon deliverable pipeline (GitHub Actions — scheduled monthly):**
+
+```yaml
+# .github/workflows/fedramp-conmon.yml
+name: FedRAMP Continuous Monitoring — Monthly Deliverables
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'   # First day of each month at 06:00 UTC
+  workflow_dispatch:        # Allow manual trigger for ad-hoc reporting
+
+jobs:
+  generate-conmon-package:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # For OIDC authentication to AWS (artifact upload)
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<ACCOUNT>:role/fedramp-conmon-role
+          aws-region: us-gov-west-1  # GovCloud for FedRAMP systems
+
+      - name: Run vulnerability scans across all production artifacts
+        run: |
+          # Pull current production SBOM inventory from Dependency-Track
+          python scripts/export-sbom-inventory.py > sbom-inventory.json
+          # Run Trivy against all production images listed in inventory
+          python scripts/scan-production-images.py --input sbom-inventory.json \
+            --output trivy-results.json
+
+      - name: Generate POA&M and sync to Jira
+        env:
+          DT_API_URL: ${{ secrets.DT_API_URL }}
+          DT_API_KEY: ${{ secrets.DT_API_KEY }}
+          DT_PROJECT_UUID: ${{ secrets.DT_PROJECT_UUID }}
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+          JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
+          JIRA_REPORTER_ID: ${{ secrets.JIRA_REPORTER_ID }}
+        run: python scripts/conmon-poam-generator.py
+
+      - name: Generate inventory delta (SBOM diff vs. prior month)
+        run: |
+          python scripts/sbom-delta.py \
+            --prior s3://fedramp-evidence/conmon/$(date -d 'last month' +%Y-%m)/sbom-inventory.json \
+            --current sbom-inventory.json \
+            --output inventory-delta.csv
+
+      - name: Compile ConMon evidence package
+        run: |
+          MONTH=$(date +%Y-%m)
+          mkdir -p conmon-package-${MONTH}
+          cp poam-report.csv conmon-package-${MONTH}/
+          cp trivy-results.json conmon-package-${MONTH}/
+          cp inventory-delta.csv conmon-package-${MONTH}/
+          cp scripts/incident-log-export.json conmon-package-${MONTH}/  # Pulled from SIEM
+          tar -czf conmon-package-${MONTH}.tar.gz conmon-package-${MONTH}/
+
+      - name: Archive ConMon package to FedRAMP evidence bucket (Object Lock)
+        run: |
+          MONTH=$(date +%Y-%m)
+          aws s3api put-object \
+            --bucket fedramp-compliance-evidence \
+            --key "conmon/${MONTH}/conmon-package-${MONTH}.tar.gz" \
+            --body conmon-package-${MONTH}.tar.gz \
+            --object-lock-mode COMPLIANCE \
+            --object-lock-retain-until-date "$(date -d '+3 years' --iso-8601=seconds)"
+
+      - name: Notify ISSO of ConMon package availability
+        if: always()
+        run: |
+          # Post to the ISSO notification channel
+          python scripts/notify-isso.py \
+            --month "$(date +%Y-%m)" \
+            --s3-uri "s3://fedramp-compliance-evidence/conmon/$(date +%Y-%m)/" \
+            --sla-breaches "${{ steps.poam.outcome == 'failure' && 'YES' || 'NO' }}"
+```
+
+**ConMon closure verification loop:**
+
+FedRAMP requires evidence that POA&M items are remediated, not just tracked. Close the loop by verifying that resolved Jira tickets correspond to passing re-scans:
+
+```bash
+# Run after deploying a patched artifact — verify the CVE no longer appears
+cve_id="CVE-2021-44228"
+image_digest="myregistry.io/payment-service@sha256:b4g9..."
+
+# Re-scan with Grype
+grype "$image_digest" --output json | \
+  jq --arg cve "$cve_id" '.matches[] | select(.vulnerability.id == $cve)' \
+  && echo "FAIL: $cve_id still present in $image_digest" && exit 1 \
+  || echo "PASS: $cve_id not found in $image_digest — POA&M item ready to close"
 ```
 
 ### FedRAMP Boundary Controls

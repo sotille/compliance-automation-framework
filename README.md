@@ -35,6 +35,7 @@ The framework is designed to complement — not replace — governance, risk, an
 - [Evidence Collection Automation](docs/evidence-collection-automation.md) - Automated evidence pipeline, immutable storage architecture, audit artifact packaging, continuous compliance reporting, and framework-specific templates (SOC 2, PCI-DSS)
 - [Exception Management](docs/exception-management.md) - Full exception lifecycle, request form, risk-based approval routing, compensating controls standards, audit trail requirements, and annual review process
 - [Implementation](docs/implementation.md) - Phase-by-phase implementation guide, toolchain setup, CI/CD integration
+- [On-Premises Compliance Guide](docs/on-premises-compliance-guide.md) - Evidence collection patterns for on-premises and hybrid environments: osquery, Active Directory, ITSM integration, InSpec CIS benchmarks, MinIO Object Lock, and unified hybrid architecture
 - [Best Practices](docs/best-practices.md) - 25+ best practices for sustainable compliance automation programs
 - [Roadmap](docs/roadmap.md) - 18-month transformation roadmap, KPIs, cost-benefit analysis
 
@@ -96,6 +97,17 @@ For full implementation guidance, begin with `docs/introduction.md` and follow t
 | **Kubernetes Admission** | Kyverno, OPA Gatekeeper |
 | **SIEM / Monitoring** | Grafana, Prometheus, Loki, OpenSearch |
 | **Evidence Collection** | Custom collectors, cloud-native audit logs, SBOM tooling |
+
+---
+
+## Learning Resources
+
+The Techstream Book Series and hands-on lab companion extend the concepts in this framework with structured learning, compliance control exercises, and regulatory alignment walkthroughs.
+
+- **[Book 3: Cloud-Native Security for DevSecOps](https://www.techstream.app/learn)** — The primary book volume aligned with this framework. Covers compliance automation architecture, policy-as-code with OPA and Kyverno, continuous audit evidence collection, and regulatory framework alignment (SOC 2, PCI-DSS v4, FedRAMP, ISO 27001).
+- **[Hands-On Labs (techstream-learn/book-3-cloud-security/)](https://www.techstream.app/learn)** — Practical exercises including implementing OPA policy-as-code for compliance controls, configuring automated evidence collection pipelines, and mapping controls to SOC 2 criteria.
+- **[Book Series Overview (VOLUMES.md)](../techstream-books/VOLUMES.md)** — Index of all four Techstream volumes covering DevSecOps foundations, CI/CD security, cloud security, and release governance.
+- **[Techstream Platform](https://www.techstream.app)** — The central portal for all Techstream frameworks, documentation, and learning resources.
 
 ---
 
