@@ -9,6 +9,7 @@ Format: `[version] — [date] — [summary of changes]`
 
 - Added CHANGELOG.md (this file) for version tracking
 - Added "Learning Resources" section to README.md linking to Book 3, techstream-learn labs, and techstream.app
+- [2026-04-07] Added Section 10: GDPR Technical and Organizational Measures to regulatory-controls-matrix.md — covers Articles 5, 25, 32, 33, 34 with Techstream control mappings, evidence automation table, and ROPA guidance
 
 ## [1.0.0] — 2024-01-15
 

@@ -218,6 +218,72 @@ The following control families have near-complete overlap across frameworks — 
 
 ---
 
+## Section 10: GDPR Technical and Organizational Measures
+
+Organizations subject to the EU General Data Protection Regulation (GDPR) — including any organization that processes personal data of EU/EEA residents — must implement appropriate technical and organizational measures (TOMs) under Articles 5, 25, 32, 33, and 34. This section maps Techstream technical controls to GDPR requirements. Note that GDPR compliance requires legal, organizational, and contractual measures beyond what technical controls alone can provide.
+
+**Scope note:** GDPR does not prescribe specific technical implementations. The controls below address common technical interpretations of GDPR requirements. Legal counsel should review the full applicability of each article to your processing activities.
+
+### Article 5 — Principles of Personal Data Processing
+
+| Techstream Control | GDPR Article | Principle | Coverage |
+|-------------------|-------------|-----------|----------|
+| **Data classification and handling policy** | Art. 5(1)(a) | Lawfulness, fairness, transparency | Partial — Techstream enforces technical controls; legal basis documentation is organizational |
+| **Purpose limitation via data access controls (RBAC)** | Art. 5(1)(b) | Purpose limitation | Full — RBAC enforces access boundaries per data type and processing purpose |
+| **Data minimization via schema controls and IaC policy** | Art. 5(1)(c) | Data minimization | Partial — IaC scanning can enforce "no PII in non-production environments" policies |
+| **Encryption at rest and in transit** | Art. 5(1)(f) | Integrity and confidentiality | Full — Checkov/tfsec enforce encryption; TLS policy enforcement; immutable audit logs |
+| **Retention policy enforcement via lifecycle rules** | Art. 5(1)(e) | Storage limitation | Full — S3/Azure Blob lifecycle policies enforced via IaC; automated deletion after retention period |
+
+### Article 25 — Data Protection by Design and Default
+
+| Techstream Control | GDPR Article | Coverage |
+|-------------------|-------------|----------|
+| **IaC scanning blocks misconfigured data stores (public access, no encryption)** | Art. 25(1) | Full — Checkov rules prevent deployment of misconfigured resources |
+| **Default deny access controls (RBAC + least privilege)** | Art. 25(2) | Full — IAM policy enforcement; OIDC federation removes standing access |
+| **Pseudonymization patterns in data pipeline IaC** | Art. 25(1) | Supporting — IaC can enforce deployment of pseudonymization services; data processing logic requires separate review |
+| **Data residency controls via region restrictions** | Art. 25(1) | Full — OPA/Kyverno admission controllers block deployment to non-approved regions |
+
+### Article 32 — Security of Processing
+
+| Techstream Control | GDPR Article | Coverage |
+|-------------------|-------------|----------|
+| **Pseudonymization and encryption** | Art. 32(1)(a) | Full — encryption at rest and in transit enforced via IaC; key management lifecycle |
+| **Confidentiality, integrity, availability, resilience controls** | Art. 32(1)(b) | Full — network segmentation, immutable artifact promotion, multi-AZ deployment, backup enforcement |
+| **Ability to restore availability after incident** | Art. 32(1)(c) | Supporting — IaC enables reproducible infrastructure; RTO/RPO targets require separate DR testing |
+| **Regular testing of security measures effectiveness** | Art. 32(1)(d) | Full — continuous SAST/SCA/DAST in pipeline; periodic penetration testing; CSPM continuous assessment |
+| **Risk-appropriate security level** | Art. 32(2) | Supporting — TDMM maturity assessments provide evidence of risk-appropriate controls |
+
+### Article 33 — Breach Notification (72-Hour Notification)
+
+| Techstream Control | GDPR Requirement | Coverage |
+|-------------------|-----------------|----------|
+| **SIEM alerting and incident detection capability** | Art. 33: detect breaches without undue delay | Full — SIEM rules for unauthorized data access; anomalous data exfiltration detection |
+| **Incident response plan with breach notification workflow** | Art. 33: notify supervisory authority within 72 hours | Partial — IR playbook includes breach assessment step; DPA notification is an organizational process |
+| **Breach impact assessment (risk to data subjects)** | Art. 33(3)(d): assess risk to rights and freedoms | Supporting — IR playbook provides structured assessment framework |
+| **Immutable incident log** | Art. 33: document all breaches | Full — SIEM + ticketing integration creates immutable incident record |
+
+### Article 34 — Communication of Data Breach to Data Subjects
+
+| Techstream Control | GDPR Requirement | Coverage |
+|-------------------|-----------------|----------|
+| **Detection scope (which data subjects affected)** | Art. 34: communicate to affected data subjects without undue delay | Supporting — SIEM correlation and SBOM data can scope which systems were affected; identifying individuals is organizational |
+| **Encryption as exemption from individual notification** | Art. 34(3)(a): no notification required if data was encrypted and key not compromised | Full — Techstream encryption controls and key management provide this exemption basis |
+
+### GDPR Evidence Automation
+
+| Evidence Type | Automated Source | Notes |
+|--------------|-----------------|-------|
+| Encryption compliance | Checkov/tfsec IaC scan results | Covers storage and transit encryption |
+| Access control audit log | IAM policy exports + IDP audit log | Demonstrates purpose limitation and least privilege |
+| Data residency compliance | OPA/Kyverno admission log | Demonstrates geographic data processing restrictions |
+| Breach detection capability | SIEM alert configuration export | Demonstrates proactive detection controls |
+| Retention policy enforcement | Cloud storage lifecycle policy exports | Demonstrates storage limitation compliance |
+| Security testing evidence | Trivy, Semgrep, ZAP pipeline outputs | Demonstrates regular testing per Art. 32(1)(d) |
+
+**Note on Records of Processing Activities (ROPA):** Article 30 requires a record of processing activities. This is a data mapping exercise — identifying all data flows, purposes, legal bases, and data subject categories. Techstream controls support ROPA maintenance by providing an inventory of data stores (via SBOM, CSPM inventory) but do not substitute for the legal analysis required to complete a ROPA.
+
+---
+
 ## Evidence Automation Coverage
 
 The Techstream Compliance Automation Framework provides automated evidence collection for the following control categories. Manual evidence is still required for the areas indicated.
