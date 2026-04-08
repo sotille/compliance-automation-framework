@@ -385,12 +385,146 @@ The SSDF complements rather than replaces other compliance frameworks. Use this 
 
 ---
 
+## Section 11: AI Regulatory Frameworks
+
+Organizations developing, deploying, or procuring AI systems are subject to emerging AI-specific regulatory requirements. This section maps Techstream controls to three AI governance frameworks: the EU AI Act (Regulation 2024/1689), NIST AI RMF 1.0, and ISO 42001:2023.
+
+**Scope note:** AI regulation is evolving rapidly. This section reflects the frameworks in force or formally published as of 2026. Organizations subject to additional national AI regulations (UK AI regulation, NIST EO 14110 requirements, China AI regulations) should extend this matrix using the same control-mapping methodology.
+
+---
+
+### EU AI Act (Regulation 2024/1689/EU)
+
+The EU AI Act classifies AI systems into four risk tiers. DevSecOps teams typically interact with **high-risk AI systems** (automated CV screening, critical infrastructure management), **general-purpose AI models (GPAI)** deployed as pipeline components, and **limited-risk systems** (chatbots, AI code reviewers with transparency disclosures). Unacceptable-risk systems are prohibited and out of scope.
+
+**Article 9 — Risk Management System (High-Risk AI Systems)**
+
+| Techstream Control | EU AI Act Requirement | Coverage |
+|---|---|---|
+| **AI threat model (STRIDE for LLMs)** | Art. 9(2)(a): identify and analyze known and foreseeable risks | Full — ai-devsecops-framework/docs/threat-model.md |
+| **AI behavioral baseline and anomaly monitoring** | Art. 9(2)(b): adopt risk estimation measures | Full — forensics-and-incident-response-framework/docs/ai-behavioral-baseline.md |
+| **AI component inventory and intended use documentation** | Art. 9(4): test AI system for intended purpose under reasonably foreseeable conditions | Partial — inventory per ai-devsecops-framework/docs/introduction.md; test procedures require organizational process |
+| **AI security maturity assessment** | Art. 9(2)(c): evaluate residual risk | Supporting — ai-devsecops-framework/docs/maturity-model.md |
+
+**Article 13 — Transparency and Provision of Information (High-Risk AI Systems)**
+
+| Techstream Control | EU AI Act Requirement | Coverage |
+|---|---|---|
+| **Agent audit trail (structured, append-only)** | Art. 13(1): high-risk AI systems shall be designed to ensure sufficient transparency | Full — ai-devsecops-framework/docs/agent-audit-trail.md |
+| **System prompt version control** | Art. 13(2): instructions for use, including identity and contact details of provider | Partial — system prompt versioning addresses documentation of AI instructions |
+| **Model version pinning and provenance** | Art. 13(3)(b): characteristics, capabilities, limitations of AI system | Supporting — ai-devsecops-framework/docs/model-supply-chain.md |
+
+**Article 14 — Human Oversight (High-Risk AI Systems)**
+
+| Techstream Control | EU AI Act Requirement | Coverage |
+|---|---|---|
+| **Human approval gates on consequential agent actions** | Art. 14(1): enable oversight by natural persons during use | Full — ai-devsecops-framework/docs/agent-authorization.md; secure-pipeline-templates approval gate patterns |
+| **Circuit breakers and blast radius containment** | Art. 14(4)(b): able to decide not to use, override, or interrupt AI system | Full — ai-devsecops-framework/docs/blast-radius-containment.md |
+| **Agent authorization policy (POLA)** | Art. 14(4)(c): able to intervene with appropriate tools | Full — ai-devsecops-framework/docs/agent-authorization.md |
+
+**Article 15 — Accuracy, Robustness, and Cybersecurity (High-Risk AI Systems)**
+
+| Techstream Control | EU AI Act Requirement | Coverage |
+|---|---|---|
+| **Prompt injection defense (structural)** | Art. 15(3): resilience against adversarial manipulation | Full — ai-devsecops-framework/docs/prompt-injection-defense.md |
+| **Output validation before consequential actions** | Art. 15(1): appropriate level of accuracy for intended purpose | Full — ch03-prompt-injection-defense lab; output schema enforcement patterns |
+| **Model supply chain controls (checksum, provenance)** | Art. 15(3): resilience against data poisoning, model poisoning | Supporting — ai-devsecops-framework/docs/model-supply-chain.md |
+
+**Article 53 — Obligations for GPAI Model Providers**
+
+| Obligation | Techstream Evidence Support |
+|---|---|
+| Technical documentation and copyright compliance | Model provenance records; provider contract review |
+| Policy on copyright compliance | Developer AI usage policy per ai-devsecops-framework/docs/developer-environment-controls.md |
+| Transparency summary (published) | Not a technical control — organizational documentation requirement |
+| Systemic-risk model: adversarial testing | ai-devsecops-framework threat modeling methodology |
+| Systemic-risk model: incident notification | Incident response plan with AI-specific triggers |
+| Systemic-risk model: cybersecurity safeguards | Full Techstream AI security control stack |
+
+---
+
+### NIST AI RMF 1.0
+
+NIST AI RMF organizes AI risk management into four functions. This mapping shows how Techstream controls support each function's practice areas.
+
+**GOVERN — Establishing AI Risk Culture and Processes**
+
+| NIST AI RMF Practice | Techstream Control | Coverage |
+|---|---|---|
+| GOVERN 1.1: AI risk policies established and communicated | Developer AI usage policy; agent authorization policy | Full |
+| GOVERN 1.2: Accountability for AI risk management defined | RACI matrices; security champion role extended to AI systems | Supporting |
+| GOVERN 2.2: AI risk management framework integrated with enterprise risk | AI security maturity model integrated with TDMM assessment | Supporting |
+| GOVERN 4.1: Risk teams have access to AI-related expertise | Security champion curriculum; ai-devsecops-framework program guide | Full |
+| GOVERN 6.1: AI risk policies reviewed regularly | Quarterly agent authorization policy review; maturity reassessment cycle | Partial |
+
+**MAP — Identifying AI Risks in Context**
+
+| NIST AI RMF Practice | Techstream Control | Coverage |
+|---|---|---|
+| MAP 1.1: AI system context established | AI component inventory; integration surface taxonomy | Full — ai-devsecops-framework/docs/introduction.md |
+| MAP 1.5: Organizational risk tolerance defined for AI | Risk exception process extended to AI systems | Partial |
+| MAP 2.1: AI system threat landscape identified | STRIDE for LLM systems; multi-agent threat model | Full — ai-devsecops-framework/docs/threat-model.md |
+| MAP 2.2: Scientific findings and attacker capability considered | Threat intelligence integration; OWASP LLM Top 10 alignment | Supporting |
+| MAP 3.5: AI system impacts documented | Blast radius containment design; impact assessment per deployment | Supporting — ai-devsecops-framework/docs/blast-radius-containment.md |
+
+**MEASURE — Analyzing and Assessing AI Risks**
+
+| NIST AI RMF Practice | Techstream Control | Coverage |
+|---|---|---|
+| MEASURE 1.1: AI risk metrics identified and tested | Agent behavioral baseline; 6 measurement dimensions | Full — forensics-and-incident-response-framework/docs/ai-behavioral-baseline.md |
+| MEASURE 2.2: Evaluation of AI risk metrics applied | Anomaly alerting on behavioral drift; circuit breaker thresholds | Full |
+| MEASURE 2.5: AI system performance monitored in production | Agent audit trail; production monitoring per ai-devsecops-framework/docs/production-operations.md | Full |
+| MEASURE 2.6: Risk measurement results used to improve controls | Post-incident review feeding maturity model reassessment | Partial |
+| MEASURE 4.1: Risk measurement results documented | Immutable audit trail; maturity assessment records | Full |
+
+**EVALUATE — Deciding on AI Risk Acceptability**
+
+| NIST AI RMF Practice | Techstream Control | Coverage |
+|---|---|---|
+| EVALUATE 1.1: AI risk decisions based on measurement results | Maturity level gating for AI system promotion | Supporting |
+| EVALUATE 1.2: AI risks communicated to appropriate stakeholders | Board-level AI security roadmap; investment framework | Supporting — ai-devsecops-framework/docs/program-guide.md |
+| EVALUATE 2.1: Identified risk recommendations acted upon | Gap-to-roadmap process; 90-day advancement planning | Full |
+
+---
+
+### ISO 42001:2023 (AI Management System)
+
+ISO 42001 specifies requirements for an AI Management System (AIMS). The following table maps Techstream controls to key ISO 42001 clauses and Annex A controls. For the full certification roadmap, refer to [`ai-devsecops-framework/docs/iso-42001-certification-roadmap.md`](../../ai-devsecops-framework/docs/iso-42001-certification-roadmap.md).
+
+| ISO 42001 Clause / Annex A Control | Techstream Control | Coverage |
+|---|---|---|
+| **Clause 6.1 — Actions to address AI risks and opportunities** | AI threat model; risk register extended to AI systems | Supporting |
+| **Clause 6.2 — AI objectives and planning** | AI security maturity model targets; OKR integration | Supporting |
+| **Clause 8.4 — AI system impact assessment** | Blast radius assessment; intended use documentation | Full — ai-devsecops-framework/docs/blast-radius-containment.md |
+| **Annex A 6.1 — Policies for responsible AI** | Developer AI usage policy; agent authorization policy | Full |
+| **Annex A 6.2 — Internal AI competency** | Security champion curriculum; ai-devsecops-framework training paths | Supporting |
+| **Annex A 8.3 — AI system design and development** | STRIDE for LLMs; secure AI system architecture | Full — ai-devsecops-framework/docs/architecture.md |
+| **Annex A 8.4 — AI data management** | Training data lineage; model supply chain controls | Full — ai-devsecops-framework/docs/model-supply-chain.md |
+| **Annex A 8.6 — AI system performance and monitoring** | Agent behavioral baseline; production operations monitoring | Full |
+| **Annex A 9.1 — Verification, validation, and testing of AI systems** | Prompt injection testing in CI; adversarial test suites | Partial |
+| **Annex A 9.3 — AI incident response** | Agent forensics playbooks AF-01–AF-06; Five Questions Framework | Full — forensics-and-incident-response-framework |
+| **Annex A 10.1 — Responsible AI use policies** | Developer AI usage policy; acceptable use enforcement | Full |
+
+### AI-Regulated Organization Quick Reference
+
+| Organization Profile | Primary AI Frameworks | Key Focus Areas |
+|---|---|---|
+| EU-based or EU-market AI system provider | EU AI Act (high-risk or GPAI provider) | Articles 9, 13, 14, 15; conformity assessment; CE marking |
+| US federal AI system procurer/developer | NIST AI RMF + EO 14110 requirements | GOVERN, MAP, MEASURE functions; AI use case inventory |
+| Enterprise seeking AI governance certification | ISO 42001:2023 | Clauses 6–10; Annex A controls; AIMS certification audit |
+| Global enterprise with AI in regulated products | EU AI Act + ISO 42001 + NIST AI RMF | All three frameworks; use ISO 42001 as integration layer |
+| SaaS company using AI in their product | EU AI Act (limited-risk / GPAI transparency) | Transparency disclosures; incident notification; data governance |
+
+---
+
 ## Related Documents
 
 - [Compliance Automation Architecture](architecture.md) — Four-layer compliance system design
 - [Framework Documentation](framework.md) — Policy-as-Code patterns and tool configurations
 - [Implementation Guide](implementation.md) — Phased compliance automation rollout
 - [FedRAMP Implementation Guide](fedramp-implementation-guide.md) — FedRAMP-specific controls aligned with NIST SSDF requirements
+- [AI DevSecOps Framework: ISO 42001 Certification Roadmap](../../ai-devsecops-framework/docs/iso-42001-certification-roadmap.md) — Step-by-step roadmap to ISO 42001 certification
+- [AI DevSecOps Framework: Regulatory Mapping](../../ai-devsecops-framework/docs/regulatory-mapping.md) — Detailed mapping of EU AI Act, NIST AI RMF, and OWASP LLM Top 10 to technical controls
 - [NIST SSDF](https://csrc.nist.gov/Projects/ssdf) — NIST Secure Software Development Framework official specification
 - [SLSA Framework](https://slsa.dev/) — Supply chain levels for software artifacts
 - [Software Supply Chain Security: SLSA Level Advancement](../../software-supply-chain-security-framework/docs/slsa-level-advancement.md) — Step-by-step SLSA implementation supporting SSDF PS.2 requirements

@@ -106,7 +106,7 @@ The Techstream Book Series and hands-on lab companion extend the concepts in thi
 
 - **[Book 3: Cloud-Native Security for DevSecOps](https://www.techstream.app/learn)** — The primary book volume aligned with this framework. Covers compliance automation architecture, policy-as-code with OPA and Kyverno, continuous audit evidence collection, and regulatory framework alignment (SOC 2, PCI-DSS v4, FedRAMP, ISO 27001).
 - **[Hands-On Labs (techstream-learn/book-3-cloud-security/)](https://www.techstream.app/learn)** — Practical exercises including implementing OPA policy-as-code for compliance controls, configuring automated evidence collection pipelines, and mapping controls to SOC 2 criteria.
-- **[Book Series Overview (VOLUMES.md)](../techstream-books/VOLUMES.md)** — Index of all four Techstream volumes covering DevSecOps foundations, CI/CD security, cloud security, and release governance.
+- **[Book Series Overview (VOLUMES.md)](../techstream-books/VOLUMES.md)** — Index of all five Techstream volumes covering DevSecOps foundations, CI/CD security, cloud security, release governance, and AI and agentic systems security.
 - **[Techstream Platform](https://www.techstream.app)** — The central portal for all Techstream frameworks, documentation, and learning resources.
 
 ---
