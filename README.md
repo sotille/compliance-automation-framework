@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://techstream.app">
+    <img src="https://techstream.app/images/techstream-icon.svg" width="72" height="72" alt="TechStream" />
+  </a>
+</p>
+
 # Compliance Automation Framework
 
 An enterprise-grade framework for automating continuous compliance in cloud-native environments. This framework provides the architecture, toolchain, policies, and operational guidance needed to achieve and maintain audit-ready compliance posture at scale — replacing manual, point-in-time compliance processes with automated, evidence-driven continuous compliance.
