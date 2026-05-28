@@ -13,6 +13,33 @@ Format: `[version] — [date] — [summary of changes]`
 - [2026-04-08] Added Section 11: AI Regulatory Frameworks to regulatory-controls-matrix.md — covers EU AI Act (Regulation 2024/1689) Articles 9, 13, 14, 15, 53 with Techstream control mappings; NIST AI RMF 1.0 GOVERN/MAP/MEASURE/EVALUATE function alignment; ISO 42001:2023 Annex A control mappings; AI-regulated organization quick-reference profile table; cross-links to ai-devsecops-framework/docs/regulatory-mapping.md and iso-42001-certification-roadmap.md
 - [2026-04-08] Created docs/continuous-compliance-operations.md — operational model for maintaining compliance posture continuously rather than episodically: five primary metrics (Control Coverage Rate, Control Pass Rate, MTTR by severity, Evidence Freshness Rate, Finding Recurrence Rate) and two derived metrics (Compliance Risk Score, Time-to-Audit-Ready); three-tier continuous scanning architecture (cloud infrastructure, container/IaC, application/secrets); compliance event pipeline with normalized finding schema; alert thresholds and escalation model; drift detection alert configuration; review cadence (daily automated, weekly engineering, monthly CISO, quarterly executive, annual); evidence aging and refresh requirements by control category with freshness monitoring Python implementation; executive Compliance Risk Score dashboard; monthly report template; GRC platform integration pattern (Vanta API example); five common failure modes
 
+
+---
+
+## [1.0.0] — 2026-05-17
+
+### Added — Governance and Documentation
+
+- `SECURITY.md` — security reporting policy and supported versions
+- `CITATION.cff` — academic and industry citation metadata (CFF v1.2.0)
+- `CODE_OF_CONDUCT.md` — Contributor Covenant v2.1
+- `README.md` "Related Publications" section linking the TechStream article series
+
+### Federal-standards alignment (this release)
+
+- Continued alignment with Executive Order 14028 (Improving the Nation's Cybersecurity)
+- Continued alignment with Executive Order 14306 (June 2025)
+- Continued alignment with NIST SP 800-218 (SSDF) v1.1
+- Acknowledgment of NIST SP 1800-44 (NCCoE DevSecOps Practices) preliminary draft, March 2026
+
+### Related publications referenced in this release
+
+  - "The Four Layers of Software Supply Chain Integrity" (Medium, May 2026)
+
+### Changed
+
+- Documentation cross-references updated to reflect the public TechStream framework portfolio at https://github.com/sotille
+
 ## [1.0.0] — 2024-01-15
 
 - Initial public release of the Compliance Automation Framework
