@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "Compliance Automation Framework"
+message: "If you reference, cite, or build upon this framework, please cite it as below."
+type: software
+authors:
+  - family-names: Sotille
+    given-names: Felipe
+    affiliation: "TechStream (Independent)"
+    email: "fsotille@gmail.com"
+repository-code: "https://github.com/sotille/compliance-automation-framework"
+url: "https://www.techstream.app"
+license: Apache-2.0
+version: "1.0.0"
+date-released: "2026-05-17"
+abstract: >-
+  Automated compliance across CI/CD and cloud environments: maps SOC2, ISO 27001, NIST SP 800-53, CIS Benchmarks, and PCI-DSS controls to Policy as Code expressions (OPA/Rego, Kyverno), automated evidence collection, and continuous control monitoring.
+keywords:
+  - compliance-automation
+  - opa
+  - rego
+  - kyverno
+  - soc2
+  - iso27001
+  - pci-dss
+  - nist-800-53
+  - fedramp
