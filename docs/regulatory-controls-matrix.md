@@ -202,6 +202,7 @@ Physical safeguards apply to cloud-hosted PHI primarily through the shared respo
 | Healthcare SaaS (US) | SOC 2 Type II + HIPAA | §164.308 admin safeguards, §164.312 technical safeguards, PHI encryption, audit logging |
 | EU data processing | SOC 2 + GDPR | Add data subject rights, DPA agreements, breach notification |
 | Government / US Federal | FedRAMP (NIST 800-53 moderate/high) | Full AC, AU, CA, CM, IA, SI control families |
+| EU financial entity or ICT provider to one | SOC 2 + DORA (Reg. (EU) 2022/2554) | Art. 9(4)(e) change-management evidence, Art. 8/25 vulnerability identification, Art. 17–19 incident reporting, Ch. V third-party register |
 
 ### Framework Overlap Map
 
@@ -300,7 +301,7 @@ The Techstream Compliance Automation Framework provides automated evidence colle
 
 ---
 
-## Section 10: NIST SSDF (SP 800-218) Controls Mapping
+## Section 11: NIST SSDF (SP 800-218) Controls Mapping
 
 The NIST Secure Software Development Framework (SSDF) — NIST Special Publication 800-218 — defines software development security practices for federal agencies and their software suppliers. It is directly referenced by Executive Order 14028 and the OMB M-22-18 memorandum requiring SSDF compliance from all federal software vendors. It is organized into four practice groups (PG, PS, PW, RV) with specific tasks under each.
 
@@ -385,7 +386,7 @@ The SSDF complements rather than replaces other compliance frameworks. Use this 
 
 ---
 
-## Section 11: AI Regulatory Frameworks
+## Section 12: AI Regulatory Frameworks
 
 Organizations developing, deploying, or procuring AI systems are subject to emerging AI-specific regulatory requirements. This section maps Techstream controls to three AI governance frameworks: the EU AI Act (Regulation 2024/1689), NIST AI RMF 1.0, and ISO 42001:2023.
 
@@ -517,11 +518,48 @@ ISO 42001 specifies requirements for an AI Management System (AIMS). The followi
 
 ---
 
+## Section 13: DORA — Digital Operational Resilience Act (Regulation (EU) 2022/2554)
+
+DORA is the EU's binding operational-resilience regime for financial entities and their ICT providers, applying directly since 17 January 2025. It is law enforced by financial supervisors, not a voluntary attestation. The densest delivery-pipeline obligation is **Article 9(4)(e)**, which requires that all changes to ICT systems are *"recorded, tested, assessed, approved, implemented and verified in a controlled manner."*
+
+See the dedicated [DORA Compliance Guide](dora-compliance-guide.md) for scope, the five pillars, evidence automation patterns, and the 2026 supervisory posture.
+
+**Terminology note:** DORA here = Regulation (EU) 2022/2554, not the DevOps Research & Assessment delivery metrics used elsewhere in the framework ecosystem. Always qualify which is meant.
+
+| Techstream Control | DORA Reference | SOC 2 Equivalent | Coverage |
+|-------------------|----------------|------------------|----------|
+| **Protected branches with mandatory non-author review** | Art. 9(4)(e) — assessed, approved | CC8.1 | Full |
+| **Separate deployment approvals for production** | Art. 9(4)(e) — approved; Art. 9(4)(c) | CC8.1 | Full |
+| **CI test execution bound to released SHA, results retained** | Art. 9(4)(e) — tested; Art. 25(1) | CC8.1 | Full |
+| **SAST/SCA/container scanning per release with triage records** | Art. 8(2); Art. 25(1); Art. 9(2) | CC7.1 | Full |
+| **Immutable artifact promotion, digest pinning, signing** | Art. 9(2) — integrity, authenticity; Art. 9(4)(e) | CC8.1 | Full |
+| **Pipeline audit log (immutable, tamper-evident)** | Art. 9(4)(e) — recorded | CC8.1 | Full |
+| **Post-deployment verification with retained results** | Art. 9(4)(e) — verified; Art. 10 | A1.2 | Full |
+| **Tested rollback/fallback procedure with execution history** | Art. 11; Art. 12; RTS (EU) 2024/1774 | A1.2 | Full |
+| **Emergency change path with retrospective approval** | Art. 9(4)(e); RTS (EU) 2024/1774 | CC8.1 | Full |
+| **Evidence store segregated from production access (WORM)** | Art. 9(2) | CC8.1 | Full |
+| **Release evidence package per production change** | Art. 9(4)(e) — all six verbs | CC8.1 | Full |
+
+### DORA Evidence Automation
+
+| Evidence Item | Source | Trigger | DORA Reference |
+|---------------|--------|---------|----------------|
+| Change record (PR, approvals, linked risk assessment) | VCS API + webhooks | Merge to protected branch | Art. 9(4)(e) |
+| Test results on released SHA | CI platform | Per release pipeline | Art. 9(4)(e); Art. 25(1) |
+| Vulnerability scan results with disposition | Scanner findings schema | Per release + scheduled | Art. 8(2); Art. 25(1) |
+| Deployment event (actor, env, digest, timestamp) | Deployment system | Event-driven | Art. 9(4)(e) |
+| Post-deploy verification result | CI verification job | Post-deploy | Art. 9(4)(e); Art. 10 |
+| Rollback execution + periodic test record | Orchestration system | Event + scheduled | Art. 11; Art. 12 |
+| Evidence-store integrity proof (hash chain, WORM config) | Evidence store | Continuous | Art. 9(2) |
+
+---
+
 ## Related Documents
 
 - [Compliance Automation Architecture](architecture.md) — Four-layer compliance system design
 - [Framework Documentation](framework.md) — Policy-as-Code patterns and tool configurations
 - [Implementation Guide](implementation.md) — Phased compliance automation rollout
+- [DORA Compliance Guide](dora-compliance-guide.md) — Regulation (EU) 2022/2554 delivery-pipeline mapping, evidence automation, and supervisory expectations
 - [FedRAMP Implementation Guide](fedramp-implementation-guide.md) — FedRAMP-specific controls aligned with NIST SSDF requirements
 - [AI DevSecOps Framework: ISO 42001 Certification Roadmap](../../ai-devsecops-framework/docs/iso-42001-certification-roadmap.md) — Step-by-step roadmap to ISO 42001 certification
 - [AI DevSecOps Framework: Regulatory Mapping](../../ai-devsecops-framework/docs/regulatory-mapping.md) — Detailed mapping of EU AI Act, NIST AI RMF, and OWASP LLM Top 10 to technical controls

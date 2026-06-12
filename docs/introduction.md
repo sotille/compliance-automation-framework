@@ -224,7 +224,7 @@ The compliance burden on technology organizations is increasing at an accelerati
 - **EU Cyber Resilience Act** introducing security requirements for connected products
 - **NIS2 Directive** expanding cybersecurity requirements across EU critical sectors
 - **SEC Cybersecurity Disclosure Rules** requiring public companies to disclose material cybersecurity incidents and annual cybersecurity program information
-- **DORA (Digital Operational Resilience Act)** for EU financial services
+- **DORA (Digital Operational Resilience Act)** for EU financial services — applying since 17 January 2025, with supervisory enforcement shifting to operational evidence in 2026; see the [DORA Compliance Guide](dora-compliance-guide.md) for the full delivery-pipeline mapping
 
 Each of these frameworks creates new evidence requirements, new technical controls, and new audit obligations. Organizations attempting to manage this expansion manually face rapidly escalating compliance costs and growing evidence of failure — major breaches continue to occur at organizations that have demonstrated compliance with multiple frameworks.
 

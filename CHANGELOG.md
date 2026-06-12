@@ -7,6 +7,9 @@ Format: `[version] — [date] — [summary of changes]`
 
 ## [Unreleased]
 
+- [2026-06-12] Added docs/dora-compliance-guide.md — Regulation (EU) 2022/2554 (DORA) for software delivery: scope incl. ICT third-party contractual flow-down (Art. 30), proportionality (Art. 4), the five pillars, Article 9(4)(e) six-verb change-management analysis (recorded/tested/assessed/approved/implemented/verified), delivery-pipeline control mapping, evidence automation table, incident reporting (Art. 17-19) and resilience testing (Art. 24-26) linkage, DORA-SOC 2-ISO 27001 crosswalk, 2026 supervisory posture; includes DORA-regulation vs DORA-metrics disambiguation note
+- [2026-06-12] Added Section 13: DORA to regulatory-controls-matrix.md — 11 Techstream control mappings to DORA articles with SOC 2 equivalents and evidence automation table; added EU financial entity profile row to quick-reference
+- [2026-06-12] Fixed duplicate section numbering in regulatory-controls-matrix.md — NIST SSDF renumbered Section 10 → 11, AI Regulatory Frameworks 11 → 12 (DORA takes 13)
 - Added CHANGELOG.md (this file) for version tracking
 - Added "Learning Resources" section to README.md linking to Book 3, techstream-learn labs, and techstream.app
 - [2026-04-07] Added Section 10: GDPR Technical and Organizational Measures to regulatory-controls-matrix.md — covers Articles 5, 25, 32, 33, 34 with Techstream control mappings, evidence automation table, and ROPA guidance

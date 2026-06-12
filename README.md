@@ -38,6 +38,7 @@ The framework is designed to complement — not replace — governance, risk, an
 - [Architecture](docs/architecture.md) - System architecture, Policy as Code design, scanning infrastructure, dashboards
 - [Framework](docs/framework.md) - Full controls framework, SOC2/ISO/NIST/CIS mappings, evidence catalog, Policy as Code patterns
 - [Regulatory Controls Matrix](docs/regulatory-controls-matrix.md) - Detailed cross-reference mapping Techstream controls to SOC 2, ISO 27001, NIST 800-53, PCI-DSS, and CIS Controls
+- [DORA Compliance Guide](docs/dora-compliance-guide.md) - Regulation (EU) 2022/2554 for software delivery: Article 9(4)(e) change-management evidence, the five pillars, evidence automation patterns, SOC 2/ISO crosswalk, and 2026 supervisory expectations
 - [Evidence Collection Automation](docs/evidence-collection-automation.md) - Automated evidence pipeline, immutable storage architecture, audit artifact packaging, continuous compliance reporting, and framework-specific templates (SOC 2, PCI-DSS)
 - [Exception Management](docs/exception-management.md) - Full exception lifecycle, request form, risk-based approval routing, compensating controls standards, audit trail requirements, and annual review process
 - [Implementation](docs/implementation.md) - Phase-by-phase implementation guide, toolchain setup, CI/CD integration
