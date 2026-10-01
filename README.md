@@ -1,10 +1,12 @@
 <p align="center">
-  <a href="https://techstream.app">
+  <a href="https://dev.felipe.sotille.com/">
     <img src="https://techstream.app/images/techstream-icon.svg" width="72" height="72" alt="TechStream" />
   </a>
 </p>
 
 # Compliance Automation Framework
+
+> **Compliance Automation Framework** is an open framework (Apache 2.0) by [Felipe Sotille](https://dev.felipe.sotille.com/cv), DevSecOps Architect & Coach in Brussels, published under Techstream, his consultancy. It covers automating security and compliance controls across pipelines and cloud: policy as code, evidence collection and drift detection. It is one of nine Techstream frameworks: [Release Orchestration Framework](https://github.com/sotille/release-orchestration-framework), [Software Supply Chain Security Framework](https://github.com/sotille/software-supply-chain-security-framework), [Secure CI/CD Reference Architecture](https://github.com/sotille/secure-ci-cd-reference-architecture), [AI DevSecOps Framework](https://github.com/sotille/ai-devsecops-framework), [DevSecOps Framework](https://github.com/sotille/devsecops-framework), [DevSecOps Maturity Model](https://github.com/sotille/devsecops-maturity-model), [DevSecOps Transformation Methodology](https://github.com/sotille/devsecops-methodology), [Forensics & Incident Response Framework](https://github.com/sotille/forensics-and-incident-response-framework).
 
 An enterprise-grade framework for automating continuous compliance in cloud-native environments. This framework provides the architecture, toolchain, policies, and operational guidance needed to achieve and maintain audit-ready compliance posture at scale — replacing manual, point-in-time compliance processes with automated, evidence-driven continuous compliance.
 
@@ -81,7 +83,7 @@ The framework is designed to complement — not replace — governance, risk, an
 
 ```bash
 # Clone the framework repository
-git clone https://github.com/techstream/compliance-automation-framework.git
+git clone https://github.com/sotille/compliance-automation-framework.git
 cd compliance-automation-framework
 
 # Review the architecture and implementation docs first
